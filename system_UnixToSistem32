@@ -1,0 +1,30 @@
+import os
+import platform
+import maya.cmds as cmds
+
+
+texture_filename_list = []
+texture_filename_list_reformat = []
+server_PC = 'P:/BUNUEL/movie'
+server_MAC = '\Volumes\public\BUNUEL\movie'
+
+
+def search_all_textures_maya():
+    fileList = cmds.ls(type='file')
+    
+    for f in fileList:
+        texture_filename = cmds.getAttr(f + '.fileTextureName')
+        if platform.system() == 'Windows':
+            if server_MAC in texture_filename:
+                replace_texture_server = texture_filename.replace(server_MAC, server_PC)
+                replace_texture_server_reformat_MAC = replace_texture_server.replace("\\", "//")
+                cmds.setAttr(f + '.fileTextureName', str(replace_texture_server_reformat_MAC), type="string")
+        if platform.system() == 'Mac':
+            if server_PC in texture_filename:
+                replace_texture_server = texture_filename.replace(server_PC, server_MAC)
+                replace_texture_server_reformat_MAC = replace_texture_server.replace("/", "\\")
+                cmds.setAttr(f + '.fileTextureName', str(replace_texture_server_reformat_MAC), type="string")
+    print "----- Completed -----"
+                
+                
+search_all_textures_maya()
