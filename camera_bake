@@ -1,0 +1,33 @@
+import maya.cmds as cmds
+
+def bake_camera_selected():
+    
+    #comprobamos que tenemos seleccionada un objeto.
+    select_camera = cmds.ls(selection=True)
+    if len(select_camera) == 1:
+        
+        # Nos aseguramos que el objeto seleccionado es correcto
+        shape_name = cmds.listRelatives(select_camera, shapes=True)
+        if  cmds.objectType(shape_name[0]) == 'camera':
+            
+            #Duplicamos camara
+            new_camera = cmds.duplicate(shape_name[0])
+            
+            #La emparntamos al mundo
+            cmds.parent(new_camera, world=True)
+            
+            #Hacemos contraint a la camara selccionada
+            transform_main_camera = cmds.listRelatives(shape_name[0], allParents=True)
+            parent_contraint = cmds.parentConstraint(transform_main_camera, new_camera, weightAliasList=True, w=1.0, targetList=True)
+                  
+            #Backeamos la camara
+            range_min = cmds.playbackOptions(min=True, q=True)
+            range_max = cmds.playbackOptions(max=True, q=True)
+            cmds.bakeResults(new_camera, t=(range_min, range_max), sb=1, simulation=True)
+            
+            #Eliminado nodo de parent Contraint
+            cmds.delete(cn=True)
+            
+bake_camera_selected()
+            
+               
