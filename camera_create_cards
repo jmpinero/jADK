@@ -1,0 +1,66 @@
+import maya.cmds as cmds
+
+def create_Card():
+    #Seleccionamos una camara para crear la card
+    select_camera = cmds.ls(selection=True)
+    if len(select_camera) == 1:
+        
+        # Nos aseguramos que el objeto seleccionado es correcto
+        shape_name = cmds.listRelatives(select_camera, shapes=True)
+        if  cmds.objectType(shape_name[0]) == 'camera':
+             
+            #Contador de nodos
+            counter = 1
+            all_object = cmds.ls()
+            
+            #Nombres de los nodos por defecto.
+            root_name = 'SqXX_X_scXXX_card_XXX_root'
+            frustum_name = 'SqXX_X_scXXX_card_XXX_frustum'
+            card_name = 'SqXX_X_scXXX_card_XXX_card'
+            plusMinusAverage_name = 'SqXX_X_scXXX_card_XXX_plusMinusAverage'
+        
+            while root_name in all_object:
+                counter += 1
+                root_name = 'SqXX_X_scXXX_card_XXX_root_' + str(counter)
+                frustum_name = 'SqXX_X_scXXX_card_XXX_frustum_' + str(counter)
+                card_name = 'SqXX_X_scXXX_card_XXX_card_' + str(counter)
+                plusMinusAverage_name = 'SqXX_X_scXXX_card_XXX_plusMinusAverage_' + str(counter)
+               
+            #Crear nodo Root        
+            node_root = cmds.createNode('transform',n = root_name)
+            cmds.parent(node_root,select_camera[0])
+            cmds.setAttr(node_root + '.tx', 0)
+            cmds.setAttr(node_root + '.ty', 0)
+            cmds.setAttr(node_root + '.tz', -1000)
+            cmds.setAttr(node_root + '.rx', 0)
+            cmds.setAttr(node_root + '.ry', 0)
+            cmds.setAttr(node_root + '.rz', 0)
+            cmds.parent(node_root, world=True)
+            
+            #crear nodo frustum
+            node_frustum = cmds.createNode('transform', p = node_root, n=frustum_name)
+            
+    
+            #Crear card y emparentar
+            create_card = cmds.polyPlane(w='1920', h='817', sx=1, sy=1, n=card_name)
+            card_object = cmds.listRelatives(create_card, shapes=False)
+            cmds.parent(create_card[0], node_frustum)
+            cmds.setAttr(create_card[0] + '.tx', 0)
+            cmds.setAttr(create_card[0] + '.ty', 0)
+            cmds.setAttr(create_card[0] + '.tz', 0)
+            cmds.setAttr(create_card[0] + '.rx', 90)
+            cmds.setAttr(create_card[0] + '.ry', 0)
+            cmds.setAttr(create_card[0] + '.rz', 0)
+            cmds.setAttr(card_object[0] + '.backfaceCulling', 1)
+            cmds.polyProjection(card_object[0]+'.f[0]', ibd=True, type='Planar', md='z')
+            
+            #Escala del nodo root para ajustar el frustum
+            cmds.setAttr(node_root + '.sx', 0.375)
+            cmds.setAttr(node_root + '.sy', 0.375)
+            cmds.setAttr(node_root + '.sz', 0.375)
+    else:
+        print "----------------------- SELECCIONA UNA CAMARA PARA CREAR LA CARD"
+        
+create_Card()   
+        
+        
